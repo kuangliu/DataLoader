@@ -10,13 +10,17 @@ trainListPath = './image/train.txt'
 testDataPath = './image/test/'
 testListPath = './image/test.txt'
 
+-- The default image processing function: just scale the images.
+-- It's essential to resize before computing the training mean & std.
+imgfunc = function(im) return image.scale(im,32,32) end
+
 -- Init trainLoader
 if paths.filep('trainLoader.t7') then
     print('loading trainLoader from cache...')
     trainLoader = torch.load('trainLoader.t7')
 else
     print('init trainLoader...')
-    trainLoader = DataLoader(trainDataPath, trainListPath)
+    trainLoader = DataLoader(trainDataPath, trainListPath, imgfunc)
 end
 
 -- Init testLoader
@@ -25,7 +29,7 @@ if paths.filep('testLoader.t7') then
     testLoader = torch.load('testLoader.t7')
 else
     print('init testLoader...')
-    testLoader = DataLoader(testDataPath, testListPath)
+    testLoader = DataLoader(testDataPath, testListPath, imgfunc)
 end
 
 -- Compute training mean & std
@@ -72,7 +76,7 @@ function imageProcess(im)
     return im
 end
 
--- Pass in the imageProcess function before sampling
+-- Update the imageProcess function before training
 trainLoader.imageProcess = imageProcess
 testLoader.imageProcess = imageProcess
 

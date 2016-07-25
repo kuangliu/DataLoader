@@ -6,9 +6,8 @@ It's faster to access, and saves more spaces.
 -- dataPath  
 |-- train  
 |-- test  
-|-- train.txt
-|-- test.txt
+|-- train.txt  
+|-- test.txt  
 
-- `dataPath` is root directory, and passed as argument.
-- `train`&`test` are folders containing training/test images.
-- `train.txt`&`test.txt` containing the file names & labels/targets separated by spaces.
+- `train`&`test` are folders containing training/test images.  
+- `train.txt`&`test.txt` containing the file names & labels/targets separated by spaces.  

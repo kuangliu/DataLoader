@@ -14,9 +14,10 @@ local pathcat = paths.concat
 function DataLoader:__init(dataPath, listPath, imageProcess)
     ---------------------------------------------------------------------------
     -- DataLoader takes:
-    --  -  dataPath: a folder containing all the images
-    --  -  listPath: a text file containing all sample names & targets
-    --  -  imageProcess: the image process function while loading
+    --  -  dataPath: a folder containing all the images.
+    --  -  listPath: a text file containing all sample names & targets.
+    --  -  imageProcess: the image process function while sampling, performing
+    --                   resizing, zero-mean, normalization, auumentation.
     ---------------------------------------------------------------------------
     assert(paths.dirp(dataPath), dataPath..' not exist!')
     assert(paths.filep(listPath), listPath..' not exist!')
@@ -95,7 +96,7 @@ function DataLoader:__loadImages(indices)
         local im = image.load(pathcat(self.dataPath, name))
         im = self.imageProcess(im)   -- recale, zero-mean & normalization
 
-        images = images or  torch.Tensor(quantity, 3, im:size(2), im:size(2))
+        images = images or torch.Tensor(quantity, 3, im:size(2), im:size(2))
         images[i] = im
     end
     return images
