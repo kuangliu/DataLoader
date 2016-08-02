@@ -14,10 +14,10 @@ local pathcat = paths.concat
 function DataLoader:__init(dataPath, listPath, imageProcess)
     ---------------------------------------------------------------------------
     -- DataLoader takes:
-    --  -  dataPath: a folder containing all the images.
-    --  -  listPath: a text file containing all sample names & targets.
-    --  -  imageProcess: the image process function while sampling, performing
-    --                   resizing, zero-mean, normalization, auumentation.
+    --  -  dataPath: a folder containing the images.
+    --  -  listPath: a text file containing sample names & targets.
+    --  -  imageProcess: hooker function for image preprocess while sampling,
+    --                   performing like resizing, zero-mean, normalization.
     ---------------------------------------------------------------------------
     assert(paths.dirp(dataPath), dataPath..' not exist!')
     assert(paths.filep(listPath), listPath..' not exist!')
@@ -52,7 +52,7 @@ function DataLoader:parseList()
     self.nSamples = N
 
     local names = torch.CharTensor(N,constLength):fill(0)
-    local targets = nil
+    local targets
 
     -- Parse names and targets line by line
     local name_data = names:data()
@@ -61,18 +61,27 @@ function DataLoader:parseList()
         xlua.progress(i,N)
         local line = f:read('*l')
 
-        local isfirst = true
-        local target = {}
-        for s in string.gmatch(line, '%S+') do
-            if isfirst then -- image name
-                ffi.copy(name_data, s)
-                name_data = name_data + constLength
-                maxNameLength = math.max(maxNameLength, #s)
-                isfirst = false
-            else            -- targets
-                target[#target+1] = tonumber(s)
-            end
+        local splited = string.split(line, '%s+')
+        ffi.copy(name_data, splited[1])    -- image name
+        name_data = name_data + constLength
+        maxNameLength = math.max(maxNameLength, #splited[1])
+
+        local target = {}    -- targets
+        for i = 2,#splited do
+            target[#target+1] = tonumber(splited[i])
         end
+        -- local isfirst = true
+        -- local target = {}
+        -- for s in string.gmatch(line, '%S+') do
+        --     if isfirst then -- image name
+        --         ffi.copy(name_data, s)
+        --         name_data = name_data + constLength
+        --         maxNameLength = math.max(maxNameLength, #s)
+        --         isfirst = false
+        --     else            -- targets
+        --         target[#target+1] = tonumber(s)
+        --     end
+        -- end
         targets = targets or torch.Tensor(N, #target)
         targets[i] = torch.Tensor(target)
     end
